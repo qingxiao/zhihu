@@ -9,6 +9,7 @@ module.exports = {
         password: 'q372563572',
         remember_me: true
     },
+    entryUrl:'/explore',
     requestHeader: {
         'Host': 'www.zhihu.com',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0',
