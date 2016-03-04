@@ -10,7 +10,7 @@ var conf = require('../config.js');
 
 var cookieFile = path.join(__dirname, '../datas/cookie.txt');
 
-function doLogin() {
+function doLogin(homePageCookie) {
     return new Promise(function (resolve, reject) {
         request.post(conf.domain + conf.loginUrl)
             .send(conf.loginData)
@@ -19,15 +19,28 @@ function doLogin() {
                 console.log(res.res.body['msg']);
                 if (res.res.body['r'] == 0) {
                     var cookie = parseLoginCookie(res.headers['set-cookie']);
-                    resolve(cookie);
+                    resolve(homePageCookie+';'+cookie);
                 } else {
                     reject(new Error(res.res.body['msg']));
                 }
-
-
             });
     });
 }
+//方位homepage 获取部分cookie信息
+function homePage(){
+    return new Promise(function (resolve, reject) {
+        request.get(conf.domain)
+            .end(function (err, res) {
+                if (res.res) {
+                    var cookie = parseLoginCookie(res.headers['set-cookie']);
+                    resolve(cookie);
+                } else {
+                    reject(err);
+                }
+            });
+    });
+}
+
 function parseLoginCookie(cookies) {
     var tmp = [];
     cookies.forEach(function (x) {
@@ -41,7 +54,8 @@ function login(forceLogin) {
 
     return new Promise(function (resolve, reject) {
         if (!fs.existsSync(cookieFile) || forceLogin) {
-            doLogin()
+            homePage()
+                .then(doLogin)
                 .then(function (cookie) {
                     fs.writeFileSync(cookieFile, cookie);
                     resolve(cookie);
