@@ -32,7 +32,7 @@ function getEntryUrl(text){
 function parseCookie(cookie){
     var arr = cookie.split(';');
     var oo = {};
-    arr.each(function(item){
+    arr.forEach(function(item){
         var t = item.split('=');
         oo[t[0]] = t[1];
     });

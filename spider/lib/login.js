@@ -26,7 +26,7 @@ function doLogin(homePageCookie) {
             });
     });
 }
-//方位homepage 获取部分cookie信息
+//锟斤拷位homepage 锟斤拷取锟斤拷锟斤拷cookie锟斤拷息
 function homePage(){
     return new Promise(function (resolve, reject) {
         request.get(conf.domain)
@@ -50,7 +50,7 @@ function parseLoginCookie(cookies) {
 }
 
 function login(forceLogin) {
-    //如果cookie失效需要重新登录
+    //锟斤拷锟絚ookie失效锟斤拷要锟斤拷锟铰碉拷录
 
     return new Promise(function (resolve, reject) {
         if (!fs.existsSync(cookieFile) || forceLogin) {

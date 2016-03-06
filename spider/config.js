@@ -20,6 +20,8 @@ module.exports = {
         'X-Requested-With': 'XMLHttpRequest',
         'Referer': 'https://www.zhihu.com/',
         'Connection': 'keep-alive'
-    }
+    },
+    //最小关注数
+    mixFollowers:1000
 }
 ;

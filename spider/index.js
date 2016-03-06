@@ -8,25 +8,38 @@ var entry = require('./lib/entry.js');
 var person = require('./lib/person.js');
 var follower = require('./lib/follower.js');
 var urls = require('./lib/urls.js');
+var store = require('./lib/store.js');
+var Promise = require('es6-promise').Promise;
 
-try {
-    login()
-        .then(entry)
-        .then(function (url) {
-            urls.emit('add', url);
-            urls.emit('next');
-        });
+login()
+    .then(entry)
+    .then(function (url) {
+        urls.emit('add', url);
+        urls.emit('next');
+    });
 
-    urls.on('exec', function (url) {
+urls.on('exec', function (url) {
+    try {
         person(url)
-            .then(follower)
+            .then(store)
+            .then(function (profile) {
+                urls.emit('next', profile);
+            });
+    } catch (err) {
+        console.log(err)
+    }
+});
+
+urls.on('execFollower', function (hash_id) {
+    try {
+        follower(hash_id)
             .then(function () {
                 urls.emit('next');
             });
-    });
-} catch (e) {
-    console.log(e)
-}
+    } catch (err) {
+        console.log(err)
+    }
+});
 
 /*
  request
