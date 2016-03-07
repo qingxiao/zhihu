@@ -9,19 +9,27 @@ var person = require('./lib/person.js');
 var follower = require('./lib/follower.js');
 var urls = require('./lib/urls.js');
 var store = require('./lib/store.js');
+var db = require('./lib/db.js');
 var Promise = require('es6-promise').Promise;
 
-login()
+db.connection()
+    .then(login)
     .then(entry)
     .then(function (url) {
-        urls.emit('add', '/people/you-yy-3');
+        url = 'https://www.zhihu.com/people/shen-le-38-83';
+        urls.emit('add', url);
         urls.emit('next');
     });
 
 urls.on('exec', function (url) {
+    var id = url.split('/').pop();
     try {
         person(url)
-            .then(store)
+            //.then(store)
+            .then(db.isExist)
+            .then(db.save, function(){
+                urls.emit('next');
+            })
             .then(function (profile) {
                 urls.emit('next', profile);
             });

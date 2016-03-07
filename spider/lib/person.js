@@ -37,12 +37,16 @@ function getProfile(text, url){
         intro:$main.find('.bio').text(),
         location:$main.find('.location .topic-link').text(),
         business:$main.find('.business').text(),
-        //关注别人数
+        //关注别人�?
         followees:$follow.eq(0).text(),
         //被别人关注数
         followers:$follow.eq(1).text(),
         avatar:(function(){
             var src = $main.find('.Avatar').attr('src');
+            if(!src){
+                console.log('not find avatar...');
+                return '';
+            }
             src = src.replace(/_.*(?=\.)/, '');
             return src;
         })(),

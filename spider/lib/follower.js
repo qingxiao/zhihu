@@ -38,7 +38,9 @@ function queryFollowerList(hash_id, offset, finish) {
 
             if (body.r == 0 && item && item.length) {
                 parseFollower(item);
-                queryFollowerList(hash_id, offset + item.length, finish);
+                setTimeout(function(){
+                    queryFollowerList(hash_id, offset + item.length, finish);
+                }, 1000);
             } else {
                 finish();
             }
