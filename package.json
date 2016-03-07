@@ -18,6 +18,7 @@
     "cheerio": "^0.20.0",
     "es6-promise": "^3.1.2",
     "file": "^0.2.2",
+    "mongoose": "^4.4.6",
     "superagent": "^1.8.0-beta.2"
   }
 }

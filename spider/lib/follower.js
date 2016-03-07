@@ -5,7 +5,6 @@ var conf = require('../config.js');
 var urls = require('../lib/urls.js');
 
 function follower(hash_id) {
-    console.log(hash_id)
     var fListUrl = conf.domain + '/node/ProfileFolloweesListV2';
     return new Promise(function (resolve, reject) {
         queryFollowerList(hash_id, 0, function(){
@@ -32,7 +31,7 @@ function queryFollowerList(hash_id, offset, finish) {
         .send(formData(postData))
         .end(function (err, res) {
             if(err){
-                 throw err;
+                  throw err;
             }
             var body = res.res.body;
             var item = body.msg;

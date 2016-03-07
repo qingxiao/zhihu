@@ -14,7 +14,7 @@ var Promise = require('es6-promise').Promise;
 login()
     .then(entry)
     .then(function (url) {
-        urls.emit('add', url);
+        urls.emit('add', '/people/you-yy-3');
         urls.emit('next');
     });
 
