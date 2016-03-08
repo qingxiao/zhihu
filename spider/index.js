@@ -12,14 +12,18 @@ var store = require('./lib/store.js');
 var db = require('./lib/db.js');
 var Promise = require('es6-promise').Promise;
 
+try {
 db.connection()
     .then(login)
     .then(entry)
     .then(function (url) {
-        url = 'https://www.zhihu.com/people/shen-le-38-83';
+        url = 'https://www.zhihu.com/people/nie-yong-73';
         urls.emit('add', url);
         urls.emit('next');
     });
+} catch (err) {
+    console.log(err)
+}
 
 urls.on('exec', function (url) {
     var id = url.split('/').pop();
@@ -40,8 +44,9 @@ urls.on('exec', function (url) {
 
 urls.on('execFollower', function (hash_id) {
     try {
-        follower(hash_id)
-            .then(function () {
+        //db.checkHashId(hash_id)
+        //    .then(follower)
+        follower(hash_id).then(function () {
                 urls.emit('next');
             });
     } catch (err) {

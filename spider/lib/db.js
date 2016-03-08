@@ -18,6 +18,8 @@ var UserSchema = mongoose.Schema({
 });
 var User = mongoose.model('User', UserSchema);
 
+var userAggregate = new User.aggregate;
+
 var db;
 //链接db
 exports.connection = function(){
@@ -47,6 +49,29 @@ exports.save = function(profile){
 //检查是否已经储存
 exports.isExist = function(profile){
 
+    // we're connected!
+    return new Promise(function (resolve, reject) {
+        User.findOne({id:profile.id},'id', function (err, u) {
+            if (err) return reject(err);
+            if(u){
+                console.log('this user is exist:', u);
+                return reject(u);
+            }
+            resolve(profile);
+        });
+    });
+};
+
+//检查是否已经存在hashId
+exports.checkHashId = function(hash_id){
+    if(!hash_id){
+        //获取一个hashId
+       var a = userAggregate.sample(1, function(e, item){
+           console.log(e, item)
+       });
+        console.log(a)
+        return;
+    }
     // we're connected!
     return new Promise(function (resolve, reject) {
         User.findOne({id:profile.id},'id', function (err, u) {
