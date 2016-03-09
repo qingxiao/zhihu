@@ -5,17 +5,18 @@ var conf = require('../config.js');
 var urls = require('../lib/urls.js');
 
 function follower(profile) {
-    var fListUrl = conf.domain + '/node/ProfileFolloweesListV2';
+
     return new Promise(function (resolve, reject) {
         var followeesIds = [];
-        queryFollowerList(hash_id, 0, followeesIds,  function(){
+        queryFollowerList(profile, 0, followeesIds, function(){
             profile.followeesIds = followeesIds;
             resolve(profile);
         });
     });
 }
-//todo »ñÈ¡ÍêÈ«²¿ÓÃ»§ºóÔÙ·µ»ØÊý×é£¬²»µ¥¶À´¦Àíurl
-function queryFollowerList(hash_id, offset, followeesIds, finish) {
+//todo ï¿½ï¿½È¡ï¿½ï¿½È«ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ù·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½url
+function queryFollowerList(profile, offset, followeesIds, finish) {
+    var hash_id = profile.hash_id;
     var fListUrl = conf.domain + '/node/ProfileFolloweesListV2';
     var postData = {
         method: 'next',
@@ -26,7 +27,6 @@ function queryFollowerList(hash_id, offset, followeesIds, finish) {
         })),
         _xsrf: conf.cookie._xsrf
     };
-
 
     request.post(fListUrl)
         .set(conf.requestHeader)
@@ -40,8 +40,9 @@ function queryFollowerList(hash_id, offset, followeesIds, finish) {
 
             if (body.r == 0 && item && item.length) {
                 parseFollower(item, followeesIds);
+                console.log('get followees length:', followeesIds.length)
                 setTimeout(function(){
-                    queryFollowerList(hash_id, offset + item.length, finish);
+                    queryFollowerList(profile, offset + item.length, followeesIds, finish);
                 }, 1000);
             } else {
                 finish();

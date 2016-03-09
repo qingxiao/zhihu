@@ -48,16 +48,16 @@ exports.save = function(profile){
 };
 
 //检查是否已经储存
-exports.isExist = function(profile){
+exports.isExist = function(id){
     // we're connected!
     return new Promise(function (resolve, reject) {
-        User.findOne({id:profile.id},'id', function (err, u) {
+        User.findOne({id:id}, function (err, u) {
             if (err) return reject(err);
             if(u){
                 console.log('this user is exist:', u);
                 return reject(u);
             }
-            resolve(profile);
+            resolve(id);
         });
     });
 };

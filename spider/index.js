@@ -16,38 +16,56 @@ try {
         .then(login)
         .then(entry)
         .then(function (userId) {
-            parsePerson(userId)
-                .then(function(p){
-                    parseFollower(p);
-                });
+            parsePerson(userId, function (p) {
+                findOneHashId()
+            });
         });
 } catch (err) {
     console.log(err)
 }
 
-function parsePerson(userId, callback) {
-    callback = callback || function(){};
-    return person(userId)
-        .then(db.isExist, callback)
-        .then(db.save, callback)
-        .then(callback);
+function parsePerson(userId, cb) {
+    console.log('parsePerson:' + userId)
+    var callback = function (p) {
+        cb(p);
+        callback = function () {
+        };
+    };
+    db.isExist(userId)
+        .then(function(){
+            person(userId)
+        }, function(x){
+            callback(x)
+        })
+        .then(db.save, function(x){
+            callback(x)
+        })
+        .then(function(x){
+            callback(x)
+        });
 }
 
-function parsePersons(userIds, callback){
+function parsePersons(userIds, callback) {
     var id = userIds.shift();
-    if(!id){
+    if (!id) {
         return callback();
     }
-    parsePerson(id, function(){
-        parsePersons(userIds, callback)
+    console.log('hold parse person num:', userIds.length);
+    parsePerson(id, function () {
+        parsePersons(userIds, callback);
     });
 }
 
 function parseFollower(profile) {
+    console.log('get follower:' + profile.id)
+    if(!profile || !profile.id){
+        findOneHashId();
+        return;
+    }
     follower(profile)
         .then(function (profile) {
             var ids = profile.followeesIds;
-            parsePersons(ids, function(){
+            parsePersons(ids, function () {
                 db.updateGotFollowees(profile.hash_id);
                 findOneHashId();
             })
@@ -56,7 +74,8 @@ function parseFollower(profile) {
     ;
 }
 
-function findOneHashId(){
+function findOneHashId() {
+    console.log('find exist person for db...')
     db.findPersonByHashId()
         .then(function (profile) {
             parseFollower(profile);
