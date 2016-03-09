@@ -4,16 +4,18 @@ var Promise = require('es6-promise').Promise;
 var conf = require('../config.js');
 var urls = require('../lib/urls.js');
 
-function follower(hash_id) {
+function follower(profile) {
     var fListUrl = conf.domain + '/node/ProfileFolloweesListV2';
     return new Promise(function (resolve, reject) {
-        queryFollowerList(hash_id, 0, function(){
-            resolve();
+        var followeesIds = [];
+        queryFollowerList(hash_id, 0, followeesIds,  function(){
+            profile.followeesIds = followeesIds;
+            resolve(profile);
         });
     });
 }
-
-function queryFollowerList(hash_id, offset, finish) {
+//todo 获取完全部用户后再返回数组，不单独处理url
+function queryFollowerList(hash_id, offset, followeesIds, finish) {
     var fListUrl = conf.domain + '/node/ProfileFolloweesListV2';
     var postData = {
         method: 'next',
@@ -37,7 +39,7 @@ function queryFollowerList(hash_id, offset, finish) {
             var item = body.msg;
 
             if (body.r == 0 && item && item.length) {
-                parseFollower(item);
+                parseFollower(item, followeesIds);
                 setTimeout(function(){
                     queryFollowerList(hash_id, offset + item.length, finish);
                 }, 1000);
@@ -55,14 +57,15 @@ function formData(data) {
     return arr.join('&');
 }
 
-function parseFollower(items) {
+function parseFollower(items, followeesIds) {
 
     items.forEach(function (item) {
         var $ = cheerio.load(item);
         var followers = parseInt($('.details a').eq(0).text());
         if(followers>=conf.mixFollowers){
             var href = $('.zg-link').attr('href');
-            urls.emit('add', href);
+            followeesIds.push(href.split('/').pop());
+            //urls.emit('add', href);
         }
 
     });

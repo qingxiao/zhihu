@@ -8,51 +8,60 @@ var entry = require('./lib/entry.js');
 var person = require('./lib/person.js');
 var follower = require('./lib/follower.js');
 var urls = require('./lib/urls.js');
-var store = require('./lib/store.js');
 var db = require('./lib/db.js');
 var Promise = require('es6-promise').Promise;
 
 try {
-db.connection()
-    .then(login)
-    .then(entry)
-    .then(function (url) {
-        url = 'https://www.zhihu.com/people/nie-yong-73';
-        urls.emit('add', url);
-        urls.emit('next');
-    });
+    db.connection()
+        .then(login)
+        .then(entry)
+        .then(function (userId) {
+            parsePerson(userId)
+                .then(function(p){
+                    parseFollower(p);
+                });
+        });
 } catch (err) {
     console.log(err)
 }
 
-urls.on('exec', function (url) {
-    var id = url.split('/').pop();
-    try {
-        person(url)
-            //.then(store)
-            .then(db.isExist)
-            .then(db.save, function(){
-                urls.emit('next');
-            })
-            .then(function (profile) {
-                urls.emit('next', profile);
-            });
-    } catch (err) {
-        console.log(err)
-    }
-});
+function parsePerson(userId, callback) {
+    callback = callback || function(){};
+    return person(userId)
+        .then(db.isExist, callback)
+        .then(db.save, callback)
+        .then(callback);
+}
 
-urls.on('execFollower', function (hash_id) {
-    try {
-        //db.checkHashId(hash_id)
-        //    .then(follower)
-        follower(hash_id).then(function () {
-                urls.emit('next');
-            });
-    } catch (err) {
-        console.log(err)
+function parsePersons(userIds, callback){
+    var id = userIds.shift();
+    if(!id){
+        return callback();
     }
-});
+    parsePerson(id, function(){
+        parsePersons(userIds, callback)
+    });
+}
+
+function parseFollower(profile) {
+    follower(profile)
+        .then(function (profile) {
+            var ids = profile.followeesIds;
+            parsePersons(ids, function(){
+                db.updateGotFollowees(profile.hash_id);
+                findOneHashId();
+            })
+        })
+
+    ;
+}
+
+function findOneHashId(){
+    db.findPersonByHashId()
+        .then(function (profile) {
+            parseFollower(profile);
+        });
+}
 
 /*
  request

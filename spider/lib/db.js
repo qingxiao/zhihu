@@ -14,11 +14,12 @@ var UserSchema = mongoose.Schema({
     "followees": Number,
     "followers": Number,
     "avatar": String,
-    "gender": String
+    "gender": String,
+    //是否获取过已关注列表
+    "got_followees":{ type: Boolean, default: false}
 });
 var User = mongoose.model('User', UserSchema);
 
-var userAggregate = new User.aggregate;
 
 var db;
 //链接db
@@ -48,7 +49,6 @@ exports.save = function(profile){
 
 //检查是否已经储存
 exports.isExist = function(profile){
-
     // we're connected!
     return new Promise(function (resolve, reject) {
         User.findOne({id:profile.id},'id', function (err, u) {
@@ -62,24 +62,24 @@ exports.isExist = function(profile){
     });
 };
 
-//检查是否已经存在hashId
-exports.checkHashId = function(hash_id){
-    if(!hash_id){
-        //获取一个hashId
-       var a = userAggregate.sample(1, function(e, item){
-           console.log(e, item)
-       });
-        console.log(a)
-        return;
-    }
-    // we're connected!
+
+
+//查询没有获取过关注者列表的item
+exports.findPersonByHashId = function(){
     return new Promise(function (resolve, reject) {
-        User.findOne({id:profile.id},'id', function (err, u) {
+        User.findOne({got_followees:false}, function (err, profile) {
+            //console.log(err, profile)
             if (err) return reject(err);
-            if(u){
-                console.log('this user is exist:', u);
-                return reject(u);
-            }
+            resolve(profile);
+        });
+    });
+};
+
+//获取玩列表后需要将got_followees 设置为true
+exports.updateGotFollowees = function(hash_id){
+    return new Promise(function (resolve, reject) {
+        User.findOneAndUpdate({hash_id:hash_id}, {got_followees:true}, function (err, profile) {
+            if (err) return reject(err);
             resolve(profile);
         });
     });

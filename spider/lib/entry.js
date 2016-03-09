@@ -15,9 +15,9 @@ function entry(cookie){
                 if(err){
                     return reject(err);
                 }
-                var entryUrl = getEntryUrl(res.text);
-                resolve(entryUrl);
-                console.log('entryUrl:'+entryUrl);
+                var userId = getEntryUrl(res.text);
+                resolve(userId);
+                console.log('enter userId:'+userId);
 
             });
     });
@@ -26,7 +26,7 @@ function entry(cookie){
 function getEntryUrl(text){
     var $ = cheerio.load(text);
     var href = $('.tab-panel .author-link').eq(0).attr('href');
-    return href;
+    return href.split('/').pop();
 }
 
 function parseCookie(cookie){

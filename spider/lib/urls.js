@@ -3,10 +3,10 @@ var EventEmitter = require('events');
 var urlEmitter = new EventEmitter();
 
 var urls = [];
-var hash_ids = [];
-var isExec = false;
-var cache = {};
-urlEmitter.on('add', function(url){
+urlEmitter.on('addPerson', function(porfile){
+    var followeesIds = porfile.followeesIds;
+});
+urlEmitter.on('add', function(id){
     var id = url.split('/').pop();
     if(cache[id]){
         return;
@@ -16,28 +16,15 @@ urlEmitter.on('add', function(url){
     console.log(urls.length)
 });
 
-
-var nextTime;
 urlEmitter.on('next', function(profile){
-    if(nextTime){
-        clearTimeout(nextTime);
-        nextTime = null;
-    }
-    if(profile){
-        hash_ids.push(profile.hash_id);
-    }
-    console.log(urls.length, hash_ids.length)
-    var url = urls.shift();
-    if(url){
+    if(urls.length){
         process.nextTick(function(){
+            var url = urls.shift();
             console.log('start parse url:'+url);
-            urlEmitter.emit('exec', url);
+            urlEmitter.emit('exec', userId);
         });
     }else{
-        nextTime = setTimeout(function(){
-            console.log('no url, wait...');
-            urlEmitter.emit('execFollower', hash_ids.shift());
-        }, 1000);
+        urlEmitter.emit('findPersonByHashId');
     }
 
 

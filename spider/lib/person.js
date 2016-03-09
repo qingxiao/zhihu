@@ -4,13 +4,25 @@ var Promise = require('es6-promise').Promise;
 var conf = require('../config.js');
 
 
-function person(url){
-    var personUrl =  '';
-    if(url.indexOf(conf.domain)>=0){
-        personUrl = url;
-    }else{
-        personUrl = conf.domain + url;
-    }
+function person(userId){
+    var personUrl =  conf.domain+'/people/'+userId;
+    return new Promise(function (resolve, reject) {
+        request.get(personUrl)
+            .set(conf.requestHeader)
+            .end(function (err, res) {
+                if(err){
+                    return reject(err);
+                }
+                var profile = getProfile(res.text, url);
+                resolve(profile);
+                console.log('user info:'+JSON.stringify(profile));
+
+            });
+    });
+}
+
+function persons(userIds){
+    var personUrl =  conf.domain+'/people/'+userId;
     return new Promise(function (resolve, reject) {
         request.get(personUrl)
             .set(conf.requestHeader)
@@ -65,4 +77,5 @@ function getProfile(text, url){
 function storeProfile(profile){
 
 }
-module.exports = person;
+module.exports.person = person;
+module.exports.persons = persons;
