@@ -78,6 +78,7 @@ function findOneHashId() {
     console.log('find exist person for db...')
     db.findPersonByHashId()
         .then(function (profile) {
+            console.log(profile)
             parseFollower(profile);
         });
 }

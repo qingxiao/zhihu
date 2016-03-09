@@ -65,12 +65,21 @@ exports.isExist = function(id){
 
 
 //查询没有获取过关注者列表的item
-exports.findPersonByHashId = function(){
+exports.findPersonByHashId = function findPersonByHashId2(){
     return new Promise(function (resolve, reject) {
         User.findOne({got_followees:false}, function (err, profile) {
             //console.log(err, profile)
             if (err) return reject(err);
-            resolve(profile);
+
+            if(!profile.id){
+                User.remove(profile,function(err,docs){
+                    if (err) return reject(err);
+                    console.log('remove error profile:', profile);
+                    resolve(profile);
+                });
+            }else{
+                resolve(profile);
+            }
         });
     });
 };
