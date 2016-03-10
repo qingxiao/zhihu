@@ -25,6 +25,8 @@ try {
 }
 
 function parsePerson(userId, cb) {
+    var date = new Date;
+    console.log([date.getHours(), date.getMinutes(), date.getSeconds()].join(':'));
     console.log('parsePerson:' + userId)
     var callback = function (p) {
         cb(p);
@@ -32,15 +34,22 @@ function parsePerson(userId, cb) {
         };
     };
     db.isExist(userId)
-        .then(function(){
-            person(userId)
-        }, function(x){
+        .then(function () {
+            console.log(1)
+            return person(userId);
+        }, function (x) {
+            console.log(2)
             callback(x)
         })
-        .then(db.save, function(x){
+        .then(function (profile) {
+            console.log(3)
+            return db.save(profile);
+        }, function (x) {
+            console.log(4)
             callback(x)
-        })
-        .then(function(x){
+        }).
+        then(function (x) {
+            console.log(5)
             callback(x)
         });
 }
@@ -58,7 +67,7 @@ function parsePersons(userIds, callback) {
 
 function parseFollower(profile) {
     console.log('get follower:' + profile.id)
-    if(!profile || !profile.id){
+    if (!profile || !profile.id) {
         findOneHashId();
         return;
     }

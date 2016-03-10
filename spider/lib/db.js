@@ -37,9 +37,14 @@ exports.connection = function(){
 };
 //保存数据
 exports.save = function(profile){
-     var u = new User(profile);
+    console.log('save profile:', profile);
+
      // we're connected!
     return new Promise(function (resolve, reject) {
+        if(!profile || !profile.id){
+            return reject('empty profile');
+        }
+        var u = new User(profile);
         u.save(function (err, u) {
             if (err) return reject(err);
             resolve(u);
