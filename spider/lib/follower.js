@@ -33,7 +33,8 @@ function queryFollowerList(profile, offset, followeesIds, finish) {
         .send(formData(postData))
         .end(function (err, res) {
             if(err){
-                  throw err;
+                console.log('get followees error:', err);
+                  return finish();
             }
             var body = res.res.body;
             var item = body.msg;
