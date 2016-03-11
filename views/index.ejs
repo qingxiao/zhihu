@@ -3,9 +3,15 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script>
+    </script>
   </head>
+
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
+  <% for(var i=0;i<users.length;i++){ %>
+  <img src="/getimg?url=<%= users[i].avatar %>">
+  <% } %>
   </body>
 </html>

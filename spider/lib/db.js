@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var Promise = require('es6-promise').Promise;
 
 
-console.log('connect mongodb...');
 mongoose.connect('mongodb://xiaoqing:xiaoqing@ds023448.mlab.com:23448/spider_zhihu');
 var UserSchema = mongoose.Schema({
     "id": String,
@@ -24,7 +23,12 @@ var User = mongoose.model('User', UserSchema);
 var db;
 //链接db
 exports.connection = function(){
+    console.log('connect mongodb...');
     return new Promise(function (resolve, reject) {
+        if(db){
+            console.log('connect mongodb success...it exist');
+            return resolve();
+        }
         db = mongoose.connection;
         db.on('error', function(err){
             reject(err);
@@ -96,5 +100,20 @@ exports.updateGotFollowees = function(hash_id){
             if (err) return reject(err);
             resolve(profile);
         });
+    });
+};
+
+//查询数据
+exports.findUsers = function(query){
+    //console.log(db)
+    return new Promise(function (resolve, reject) {
+        var num = Math.round(Math.random()*5000);
+        User.find()
+            .skip(num)
+            .limit(2)
+            .exec(function(err, docs){
+                if(err) return reject(err);
+                resolve(docs)
+            });
     });
 };
