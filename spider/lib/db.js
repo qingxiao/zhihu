@@ -35,6 +35,8 @@ exports.connection = function(){
         });
         db.once('open', function () {
             console.log('connect mongodb success...');
+            console.log(db)
+            console.log(db.db.stats())
             resolve();
         });
     });
@@ -107,10 +109,10 @@ exports.updateGotFollowees = function(hash_id){
 exports.findUsers = function(query){
     //console.log(db)
     return new Promise(function (resolve, reject) {
-        var num = Math.round(Math.random()*5000);
+        var num = Math.round(Math.random()*10000);
         User.find()
             .skip(num)
-            .limit(2)
+            .limit(10)
             .exec(function(err, docs){
                 if(err) return reject(err);
                 resolve(docs)
