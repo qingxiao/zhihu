@@ -110,7 +110,7 @@ exports.findUsers = function(query){
     //console.log(db)
     return new Promise(function (resolve, reject) {
         var num = Math.round(Math.random()*10000);
-        User.find()
+        User.find({gender:"female"})
             .skip(num)
             .limit(10)
             .exec(function(err, docs){
