@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <style>
+      img{
+        height:30px;
+        width:30px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>
+      <form url="./" method="get">
+      <div>gender:</div>
+      <div><label>male:<input type="checkbox" name="gender" value="male"
+                  <% if(query.gender == 'male'){%> checked <% } %>
+                  /></label></div>
+      <div><label>female:<input type="checkbox" name="gender" value="female"
+                  <% if(query.gender == 'female'){ %> checked <% } %>
+                  /></label></div>
+      <div><label>limit:
+          <select name="limit">
+            <option value="10"  <% if(query.limit == '10'){ %> selected <% } %> >10</option>
+            <option value="20"  <% if(query.limit == '20'){ %> selected <% } %> >20</option>
+            <option value="30"  <% if(query.limit == '30'){ %> selected <% } %> >30</option>
+            <option value="40"  <% if(query.limit == '40'){ %> selected <% } %> >40</option>
+          </select></label></div>
+      <input type="submit" value="search">
+    </form>
+    </p>
+  <% for(var i=0;i<users.length;i++){ %>
+  <img src="/users/pic?url=<%= users[i].avatar %>" title="<%= users[i].avatar %>">
+  <span><%= users[i].name %></span>
+  <% } %>
+  </body>
+</html>

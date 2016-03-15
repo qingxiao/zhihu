@@ -15,39 +15,37 @@ var UserSchema = mongoose.Schema({
     "avatar": String,
     "gender": String,
     //是否获取过已关注列表
-    "got_followees":{ type: Boolean, default: false}
+    "got_followees": {type: Boolean, default: false}
 });
 var User = mongoose.model('User', UserSchema);
 
 
 var db;
 //链接db
-exports.connection = function(){
+exports.connection = function () {
     console.log('connect mongodb...');
     return new Promise(function (resolve, reject) {
-        if(db){
+        if (db) {
             console.log('connect mongodb success...it exist');
             return resolve();
         }
         db = mongoose.connection;
-        db.on('error', function(err){
+        db.on('error', function (err) {
             reject(err);
         });
         db.once('open', function () {
             console.log('connect mongodb success...');
-            console.log(db)
-            console.log(db.db.stats())
             resolve();
         });
     });
 };
 //保存数据
-exports.save = function(profile){
+exports.save = function (profile) {
     console.log('save profile:', profile);
 
-     // we're connected!
+    // we're connected!
     return new Promise(function (resolve, reject) {
-        if(!profile || !profile.id){
+        if (!profile || !profile.id) {
             return reject('empty profile');
         }
         var u = new User(profile);
@@ -59,12 +57,12 @@ exports.save = function(profile){
 };
 
 //检查是否已经储存
-exports.isExist = function(id){
+exports.isExist = function (id) {
     // we're connected!
     return new Promise(function (resolve, reject) {
-        User.findOne({id:id}, function (err, u) {
+        User.findOne({id: id}, function (err, u) {
             if (err) return reject(err);
-            if(u){
+            if (u) {
                 console.log('this user is exist:', u);
                 return reject(u);
             }
@@ -74,21 +72,20 @@ exports.isExist = function(id){
 };
 
 
-
 //查询没有获取过关注者列表的item
-exports.findPersonByHashId = function findPersonByHashId2(){
+exports.findPersonByHashId = function findPersonByHashId2() {
     return new Promise(function (resolve, reject) {
-        User.findOne({got_followees:false}, function (err, profile) {
+        User.findOne({got_followees: false}, function (err, profile) {
             //console.log(err, profile)
             if (err) return reject(err);
 
-            if(!profile.id){
-                User.remove(profile,function(err,docs){
+            if (!profile.id) {
+                User.remove(profile, function (err, docs) {
                     if (err) return reject(err);
                     console.log('remove error profile:', profile);
                     resolve(profile);
                 });
-            }else{
+            } else {
                 resolve(profile);
             }
         });
@@ -96,9 +93,9 @@ exports.findPersonByHashId = function findPersonByHashId2(){
 };
 
 //获取玩列表后需要将got_followees 设置为true
-exports.updateGotFollowees = function(hash_id){
+exports.updateGotFollowees = function (hash_id) {
     return new Promise(function (resolve, reject) {
-        User.findOneAndUpdate({hash_id:hash_id}, {got_followees:true}, function (err, profile) {
+        User.findOneAndUpdate({hash_id: hash_id}, {got_followees: true}, function (err, profile) {
             if (err) return reject(err);
             resolve(profile);
         });
@@ -106,16 +103,56 @@ exports.updateGotFollowees = function(hash_id){
 };
 
 //查询数据
-exports.findUsers = function(query){
+exports.findUsers = function findUsers(query) {
     //console.log(db)
+    query = query || {};
+    var filter = {
+        gender: true
+    };
+
+    var q = filterData(query, filter);
+    var limit = query.limit || 10;
+
+
+
     return new Promise(function (resolve, reject) {
-        var num = Math.round(Math.random()*10000);
-        User.find({gender:"female"})
-            .skip(num)
-            .limit(10)
-            .exec(function(err, docs){
-                if(err) return reject(err);
-                resolve(docs)
-            });
-    });
-};
+
+        User.find(q)
+            .count(function(err, count){
+                if (err) return reject(err);
+                var skip = query.skip || Math.round(Math.random() * count);
+                console.log('query:', q)
+                console.log('skip:', skip)
+                User.find(q)
+                    .skip(skip)
+                    .limit(limit)
+                    .exec(function (err, docs) {
+                        if (err) return reject(err);
+                        resolve({
+                            status:0,
+                            data:{
+                                total:count,
+                                limit:limit,
+                                skip:skip,
+                                list:docs
+                            },
+                            msg:''
+                        })
+                    });
+            })
+
+    })
+
+;
+}
+;
+
+function filterData(data, filter) {
+    var q = {};
+    for (var k in data) {
+        if (filter[k] && data[k]) {
+            q[k] = data[k];
+        }
+    }
+    return q;
+}
