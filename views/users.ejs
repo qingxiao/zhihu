@@ -10,8 +10,8 @@
         }
 
         img {
-            height: 30px;
-            width: 30px;
+            height: 50px;
+            width: 50px;
         }
 
         img:hover {
@@ -67,29 +67,84 @@
 </form>
 </p>
 <div id="container">
-    <% for(var i = 0;i < users.length;i++){ %>
-    <img src="/users/pic?url=<%= users[i].avatar %>" title="<%= users[i].name %>">
-    <span><%= users[i].name %></span>
-    <% } %>
 </div>
 
 
 <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
 <script>
     (function () {
+        var picUrlPre = '/users/pic?url=';
+
+
         var $filterForm = $('#filterForm');
         $filterForm.on('submit', function(){
+            render();
+            return false;
+        });
+
+
+        function loadImage(list, callback){
+            var count = list.length;
+            var checkLoaded = function(){
+                count--;
+                if(count<=0){
+                    callback(list);
+                }
+            }
+            list.forEach(function(item){
+                var smPic = getSmallImg(item.avatar);
+                item.avatar_l = smPic;
+                var img = new Image();
+                img.onload = function(){
+                    checkLoaded();
+                }
+                img.onerror = function(){
+                    checkLoaded();
+                }
+                img.src = picUrlPre+smPic;
+            });
+
+        }
+
+        var isRandering = false;
+        var $container = $('#container');
+        function render(){
+            if(isRandering){
+                return ;
+            }
+            isRandering = true;
             $.get('/users/list', $filterForm.serialize(), function(res){
                 var list = res.data.list;
                 var html = '';
-                list.forEach(function(item){
-                    html += ' <img src="/users/pic?url='+item.avatar +'" title="'+item.name +'">' +
-                            '<span>'+ item.name +'</span>'
+                var images = [];
+                loadImage(list, function(newList){
+                    newList.forEach(function(item){
+                        html += ' <img src="'+picUrlPre+item.avatar_l +'" title="'+item.name +'">';
+                    });
+                    $container.find('img').each(function(){
+                        var $this = $(this);
+                        var time = (5*Math.random()).toFixed(2)*1;
+                        $this.animate({opacity:0}, time*1000);
+                    });
+                    setTimeout(function(){
+                        $container.html(html);
+                        isRandering = false;
+                    }, 5*1000);
                 });
-                $('#container').html(html);
+
             });
-            return false;
-        })
+        }
+
+        render();
+
+        function getSmallImg(src){
+            var cache = src.split('.');
+            var ext = cache.pop();
+            var fileName = cache.pop() + '_l';
+            cache = cache.concat([fileName, ext]);
+            return cache.join('.');
+        }
+
     })();
 </script>
 </body>
