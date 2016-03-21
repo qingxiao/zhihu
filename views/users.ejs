@@ -14,10 +14,6 @@
             width: 50px;
         }
 
-        img:hover {
-            height: auto;
-            width: auto;
-        }
     </style>
 </head>
 
@@ -106,12 +102,23 @@
 
         }
 
+        var maxTime = 3;
         var isRandering = false;
         var $container = $('#container');
         function render(){
             if(isRandering){
                 return ;
             }
+            var max = 0;
+            $container.find('img').each(function(){
+                var $this = $(this);
+                var time = (maxTime*Math.random()).toFixed(2)*1;
+                if(max<time){
+                    max = time;
+                }
+                $this.animate({opacity:0}, time*1000);
+            });
+
             isRandering = true;
             $.get('/users/list', $filterForm.serialize(), function(res){
                 var list = res.data.list;
@@ -121,15 +128,12 @@
                     newList.forEach(function(item){
                         html += ' <img src="'+picUrlPre+item.avatar_l +'" title="'+item.name +'">';
                     });
-                    $container.find('img').each(function(){
-                        var $this = $(this);
-                        var time = (5*Math.random()).toFixed(2)*1;
-                        $this.animate({opacity:0}, time*1000);
-                    });
+
+
                     setTimeout(function(){
                         $container.html(html);
                         isRandering = false;
-                    }, 5*1000);
+                    }, max*1000);
                 });
 
             });
