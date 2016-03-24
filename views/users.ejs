@@ -1,103 +1,150 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><%= title %></title>
+    <title>知乎头像</title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <style>
         body {
             background-color: #091a23;
             color: #eee;
+            text-align: center;
+            overflow-y: scroll;
         }
 
-        img {
+        #main {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        #container img {
             height: 50px;
             width: 50px;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            max-width: 100%;
+            transition: transform 1s ease 0s;
+
         }
 
+        @keyframes rotatePic {
+            from {
+                transform:rotate(0deg)
+            }
+            to{
+                transform:rotate(360deg)
+            }
+        }
+
+        .current {
+            animation: rotatePic 2s linear 0s infinite;
+        }
+
+        #container {
+            width: 310px;
+            display: inline-block;
+            text-align: center;
+            padding:16px 0 ;
+        }
+
+        #preview {
+        }
+
+        #preview img {
+            max-width: 100%;
+        }
     </style>
 </head>
 
 <body>
-<p>
-
-<form url="./" method="get" id="filterForm">
-    <div>gender:</div>
-    <div><label>male:<input type="checkbox" name="gender" value="male"
-                    <% if(query.gender == 'male'){ %>
-                            checked
-                    <% } %>
-                    /></label></div>
-    <div><label>female:<input type="checkbox" name="gender" value="female"
-                    <% if(query.gender == 'female'){ %>
-                              checked
-                    <% } %>
-                    /></label></div>
-    <div><label>limit:
+<div id="main">
+    <form url="./" method="get" id="filterForm">
+        <label> gender:
+            <select name="gender">
+                <option value="">all</option>
+                <option value="male">male</option>
+                <option value="female" selected>female</option>
+            </select>
+        </label>
+        <label>limit:
             <select name="limit">
-                <option value="10"
-                        <% if(query.limit == '10'){ %>
-                        selected
-                        <% } %>
-                        >10
-                </option>
-                <option value="20"
-                        <% if(query.limit == '20'){ %>
-                        selected
-                        <% } %>
-                        >20
-                </option>
-                <option value="30"
-                        <% if(query.limit == '30'){ %>
-                        selected
-                        <% } %>
-                        >30
-                </option>
-                <option value="40"
-                        <% if(query.limit == '40'){ %>
-                        selected
-                        <% } %>
-                        >40
-                </option>
-            </select></label></div>
-    <input type="submit" value="search">
-</form>
-</p>
-<div id="container">
-</div>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+            </select>
+        </label>
+        <input type="submit" value="search" id="btnSubmit">
+    </form>
+    <div id="container">
+    </div>
+    <div id="preview">
+        <a class="name" target="_blank"></a>
 
+        <div class="intro"></div>
+        <img/>
+    </div>
+</div>
 
 <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
 <script>
     (function () {
         var picUrlPre = '/users/pic?url=';
+        var zhihuDomain = 'https://www.zhihu.com/';
 
+        var $btnSubmit = $('#btnSubmit');
+        var $container = $('#container');
+        var $preview = $('#preview');
+        var $previewImg = $('#preview').find('img');
+
+        var currentList = [];
+
+        $container.on('click', 'img', function () {
+            if (isRandering) {
+                return;
+            }
+
+            $container.find('.current').removeClass('current');
+            var $img = $(this);
+            $img.addClass('current');
+            var idx = $img.index();
+            renderProfile(currentList[idx]);
+        });
+        var loading = {
+            start: function () {
+                $btnSubmit.val('loading...').attr('disabled', 'disabled');
+            },
+            end: function () {
+                $btnSubmit.removeAttr('disabled').attr('value', 'search');
+            }
+        }
 
         var $filterForm = $('#filterForm');
-        $filterForm.on('submit', function(){
+        $filterForm.on('submit', function () {
             render();
             return false;
         });
 
 
-        function loadImage(list, callback){
+        function loadImage(list, callback) {
             var count = list.length;
-            var checkLoaded = function(){
+            var checkLoaded = function () {
                 count--;
-                if(count<=0){
+                if (count <= 0) {
                     callback(list);
                 }
             }
-            list.forEach(function(item){
+            list.forEach(function (item) {
                 var smPic = getSmallImg(item.avatar);
                 item.avatar_l = smPic;
                 var img = new Image();
-                img.onload = function(){
+                img.onload = function () {
                     checkLoaded();
                 }
-                img.onerror = function(){
+                img.onerror = function () {
                     checkLoaded();
                 }
-                img.src = picUrlPre+smPic;
+                img.src = picUrlPre + smPic;
             });
 
         }
@@ -105,43 +152,61 @@
         var maxTime = 3;
         var isRandering = false;
         var $container = $('#container');
-        function render(){
-            if(isRandering){
-                return ;
+
+        function render() {
+            if (isRandering) {
+                return;
             }
+            loading.start();
             var max = 0;
-            $container.find('img').each(function(){
+            $container.find('img').each(function () {
                 var $this = $(this);
-                var time = (maxTime*Math.random()).toFixed(2)*1;
-                if(max<time){
+                var time = (maxTime * Math.random()).toFixed(2) * 1;
+                if (max < time) {
                     max = time;
                 }
-                $this.animate({opacity:0}, time*1000);
+                $this.animate({opacity: 0}, time * 1000);
             });
 
             isRandering = true;
-            $.get('/users/list', $filterForm.serialize(), function(res){
+            $.get('/users/list', $filterForm.serialize(), function (res) {
                 var list = res.data.list;
                 var html = '';
                 var images = [];
-                loadImage(list, function(newList){
-                    newList.forEach(function(item){
-                        html += ' <img src="'+picUrlPre+item.avatar_l +'" title="'+item.name +'">';
+                loadImage(list, function (newList) {
+                    currentList = newList;
+                    newList.forEach(function (item) {
+                        html += ' <img src="' + picUrlPre + item.avatar_l
+                                + '" title="' + item.name + '">';
                     });
 
 
-                    setTimeout(function(){
-                        $container.html(html);
+                    setTimeout(function () {
+                        $container.html(html).find('img').each(function () {
+                            var $img = $(this);
+                            var time = (maxTime * Math.random()).toFixed(2) * 1;
+                            $img.css({opacity: 0}).animate({opacity: 1}, time * 1000)
+                        });
                         isRandering = false;
-                    }, max*1000);
+                        loading.end();
+                    }, max * 1000);
                 });
 
             });
         }
 
+        function renderProfile(profile) {
+            $previewImg.attr('src', '').attr('alt', 'loading...');
+            $previewImg.attr('src', picUrlPre + profile.avatar);
+            $preview.find('.name')
+                    .text(profile.name)
+                    .attr('href', [zhihuDomain, 'people/', profile.id].join(''));
+            $preview.find('.intro').text(profile.intro);
+        }
+
         render();
 
-        function getSmallImg(src){
+        function getSmallImg(src) {
             var cache = src.split('.');
             var ext = cache.pop();
             var fileName = cache.pop() + '_l';
