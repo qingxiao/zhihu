@@ -1,0 +1,20 @@
+{
+  "apps": [
+    {
+      "name": "nodejs-zhihu",
+      "script": "./app/bin/www",
+      "watch": false,
+      "node_args": "--harmony",
+      "merge_logs": false,
+      "error_file": "/dev/null",
+      "out_file": "/dev/null",
+      "cwd": "./",
+      "instances": 1,
+      "exec_mode": "cluster",
+      "env": {
+        "NODE_ENV": "dev",
+        "PORT": 3000
+      }
+    }
+  ]
+}

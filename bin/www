@@ -8,6 +8,9 @@ var app = require('../app');
 var debug = require('debug')('zhihu:server');
 var http = require('http');
 
+//启动爬虫
+require('../spider/index');
+
 /**
  * Get port from environment and store in Express.
  */
