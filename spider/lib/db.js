@@ -111,7 +111,7 @@ exports.findUsers = function findUsers(query) {
     };
 
     var q = filterData(query, filter);
-    var limit = query.limit || 10;
+    var limit = query.limit*1 || 10;
 
 
 
