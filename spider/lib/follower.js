@@ -17,7 +17,8 @@ function follower(profile) {
 //todo ��ȡ��ȫ���û����ٷ������飬����������url
 function queryFollowerList(profile, offset, followeesIds, finish) {
     var hash_id = profile.hash_id;
-    var fListUrl = conf.domain + '/node/ProfileFolloweesListV2';
+   // var fListUrl = conf.domain + '/node/ProfileFolloweesListV2';
+    var fListUrl = conf.domain + '/api/v4/members/'+profile.id+'/followers';
     var postData = {
         method: 'next',
         params: encodeURIComponent(JSON.stringify({
@@ -27,19 +28,23 @@ function queryFollowerList(profile, offset, followeesIds, finish) {
         })),
         _xsrf: conf.cookie._xsrf
     };
+    var query='include=data[*].gender%2Cfollower_count%2' +
+        'Cis_followed%2Cis_following&offset='+offset+'&limit=20'
 
-    request.post(fListUrl)
+    var url = fListUrl+'?'+query;
+    request.get(url)
         .set(conf.requestHeader)
-        .send(formData(postData))
+        //.send(formData(postData))
         .end(function (err, res) {
             if(err){
                 console.log('get followees error:', err);
                   return finish();
             }
-            var body = res.res.body;
-            var item = body.msg;
+            var body = res.body;
+            var item = body.data;
+            var paging  = body.paging;
 
-            if (body.r == 0 && item && item.length) {
+            if (paging.is_end === false && item && item.length) {
                 parseFollower(item, followeesIds);
                 console.log('get followees length:', followeesIds.length)
                 setTimeout(function(){
@@ -62,11 +67,8 @@ function formData(data) {
 function parseFollower(items, followeesIds) {
 
     items.forEach(function (item) {
-        var $ = cheerio.load(item);
-        var followers = parseInt($('.details a').eq(0).text());
-        if(followers>=conf.mixFollowers){
-            var href = $('.zg-link').attr('href');
-            followeesIds.push(href.split('/').pop());
+        if(item.follower_count>=conf.mixFollowers){
+            followeesIds.push(item.name);
             //urls.emit('add', href);
         }
 

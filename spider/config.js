@@ -12,10 +12,9 @@ module.exports = {
     entryUrl:'/explore',
     requestHeader: {
         'Host': 'www.zhihu.com',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0',
-        'Accept': '*/*',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.',
         'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.7,pt-BR;q=0.5,en;q=0.3,es-MX;q=0.2',
-        'Accept-Encoding': 'gzip, deflate, br',
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'X-Requested-With': 'XMLHttpRequest',
         'Referer': 'https://www.zhihu.com/',
