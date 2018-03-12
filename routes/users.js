@@ -3,16 +3,8 @@ var request = require('superagent');
 var db = require('../spider/lib/db.js');
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  var query = req.query;
-  db.findUsers(query)
-      .then(function(data){
-        res.render('users', { title: 'Express', users:data.data.list, query:query });
 
-      });
-});
-/* ×ª·¢Í¼Æ¬ÇëÇó»ñÈ¡. */
+/* ×ªï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½È¡. */
 router.get('/pic', function(req, res, next) {
   var originUrl = req.query.url;
   if(!originUrl){
@@ -28,7 +20,7 @@ router.get('/pic', function(req, res, next) {
       .pipe(res);
 });
 
-/*»ñÈ¡ÓÃ»§ÁÐ±í*/
+/*ï¿½ï¿½È¡ï¿½Ã»ï¿½ï¿½Ð±ï¿½*/
 
 router.get('/list', function(req, res, next) {
   var query = req.query;

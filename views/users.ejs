@@ -11,9 +11,35 @@
             overflow-y: scroll;
         }
 
-        #main {
+        /**
+                    * 整体居中功能；
+                    * 背景透明虚化
+                    * 溢出隐藏
+                    * 边缘圆角化
+                    * 文字增加淡阴影
+                    */
+        #main{
             width: 800px;
+            padding:20px;
             margin: 0 auto;
+            position: relative;
+            background: hsla(0,0%,100%,.1) border-box;
+            overflow: hidden;
+            border-radius: .3em;
+            box-shadow: 0 0 0 1px hsla(0,0%,100%,.3) inset,
+            0 .5em 1em rgba(0, 0, 0, 0.6);
+            text-shadow: 0 1px 1px hsla(0,0%,100%,.3);
+        }
+
+        /*使用滤镜模糊边缘*/
+        #main::before{
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            margin: -30px;
+            z-index: -1;
+            -webkit-filter: blur(20px);
+            filter: blur(20px);
         }
 
         #container img {
@@ -29,10 +55,10 @@
 
         @keyframes rotatePic {
             from {
-                transform:rotate(0deg)
+                transform: rotate(0deg)
             }
-            to{
-                transform:rotate(360deg)
+            to {
+                transform: rotate(360deg)
             }
         }
 
@@ -41,48 +67,92 @@
         }
 
         #container {
-            width: 310px;
+            width: 180px;
             display: inline-block;
             text-align: center;
-            padding:16px 0 ;
+            padding: 16px 0;
+        }
+
+        .left-side {
+            float: left;
+        }
+
+        .right-side {
+            float: right;
         }
 
         #preview {
+
+        }
+
+        #preview .img-wrap {
+            width: 600px;
+            height: 600px;
+            position: relative;
         }
 
         #preview img {
             max-width: 100%;
+            max-height: 100%;
+            transform: translate(-50%, -50%);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+
+        #btnSubmit {
+            border-radius: 6px;
+            height: 24px;
+            background-color: #fff;
+            border: 1px solid #999;
+            width: 100%;
+            display: block;
+        }
+
+        .play-music {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+        }
+        .bottom-desc{
+            font-size:8px;
+            position: fixed;
+            width:100%;
+            bottom:0;
+            left:0;
+            color:#999;
+            text-align: center;
+            padding-bottom:10px;
         }
     </style>
 </head>
 
 <body>
 <div id="main">
-    <form url="./" method="get" id="filterForm">
-        <label> gender:
-            <select name="gender">
-                <option value="">all</option>
-                <option value="male">male</option>
-                <option value="female" selected>female</option>
-            </select>
-        </label>
-        <label>limit:
-            <select name="limit">
-                <option value="10" selected>10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="40">40</option>
-            </select>
-        </label>
-        <input type="submit" value="search" id="btnSubmit">
-    </form>
-    <div id="container">
-    </div>
-    <div id="preview">
-        <a class="name" target="_blank"></a>
+    <div class="right-side">
+        <form url="./" method="get" id="filterForm">
+            <input type="hidden" name="limit" value="30"/>
+            <label><input type="radio" name="gender" value=""/>全部</label>
+            <label><input type="radio" name="gender" value="male"/>汉子</label>
+            <label><input type="radio" name="gender" value="female" checked="checked"/>妹纸</label>
+            <br/>
+            <input type="submit" value="换一组" id="btnSubmit">
+        </form>
+        <div id="container">
+        </div>
 
-        <div class="intro"></div>
-        <img/>
+    </div>
+    <div id="preview" class="left-side">
+        <div>昵称：<a class="name" target="_blank">loading...</a></div>
+        <div>简介：<span class="intro">loading...</span></div>
+        <div class="img-wrap"><img/></div>
+    </div>
+    <div class="play-music">
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=298 height=52
+                src="//music.163.com/outchain/player?type=3&id=907511938&auto=1&height=32"></iframe>
+    </div>
+    <div class="bottom-desc">
+        该站只供学习，数据为2015年抓取，知乎上关注者超过1000的优质用户
     </div>
 </div>
 
@@ -115,7 +185,8 @@
                 $btnSubmit.val('loading...').attr('disabled', 'disabled');
             },
             end: function () {
-                $btnSubmit.removeAttr('disabled').attr('value', 'search');
+                $btnSubmit.removeAttr('disabled').attr('value', '换一组');
+                $container.find('img').eq(0).click();
             }
         }
 
@@ -169,7 +240,7 @@
             });
 
             isRandering = true;
-            $.get('/users/list', $filterForm.serialize(), function (res) {
+            $.get('/users/list?_=' + Date.now(), $filterForm.serialize(), function (res) {
                 var list = res.data.list;
                 var html = '';
                 var images = [];
@@ -177,7 +248,7 @@
                     currentList = newList;
                     newList.forEach(function (item) {
                         html += ' <img src="' + picUrlPre + item.avatar_l
-                                + '" title="' + item.name + '">';
+                            + '" title="' + item.name + '">';
                     });
 
 
@@ -199,8 +270,8 @@
             $previewImg.attr('src', '').attr('alt', 'loading...');
             $previewImg.attr('src', picUrlPre + profile.avatar);
             $preview.find('.name')
-                    .text(profile.name)
-                    .attr('href', [zhihuDomain, 'people/', profile.id].join(''));
+                .text(profile.name)
+                .attr('href', [zhihuDomain, 'people/', profile.id].join(''));
             $preview.find('.intro').text(profile.intro);
         }
 
