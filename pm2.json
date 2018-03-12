@@ -2,7 +2,7 @@
   "apps": [
     {
       "name": "nodejs-zhihu",
-      "script": "./app/bin/www",
+      "script": "./bin/www",
       "watch": false,
       "node_args": "--harmony",
       "merge_logs": false,
